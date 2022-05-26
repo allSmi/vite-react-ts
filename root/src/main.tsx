@@ -38,17 +38,6 @@ const imgUrl = new URL('./img.png', import.meta.url).href
 
 console.log('imgUrl', import.meta.url, imgUrl);
 
-console.log('process-log', process.env.BAR, process.env.FOO);
-
-console.log('VITE_AAA', import.meta.env.VITE_AAA);
-
-console.log('vite-url', import.meta.url);
-
-console.log('vite-meta', import.meta);
-
-__DEV__ === 'serve' && console.log('__DEV__log', __DEV__);
-
-
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
