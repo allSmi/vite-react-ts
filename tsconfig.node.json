@@ -3,6 +3,7 @@
     "composite": true,
     "module": "esnext",
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
   },
   "include": ["vite.config.ts"]

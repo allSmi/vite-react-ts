@@ -15,6 +15,7 @@ import style1 from './css/index.module.scss'
 import './css/index.scss'
 // import url from '/src/img/1.jpeg'
 import url from './img/1.jpeg'
+import Calendar from './component/calendar1'
 
 aaa()
 testDebounce()
@@ -27,6 +28,12 @@ console.log(style,style1);
 console.log('img',url);
 
 const modules = testImport()
+
+import('./js/a').then((m)=>{
+  console.log('sdfsdf');
+
+  m.default()
+})
 
 // for (const path in modules) {
 //   modules[path]().then((mod) => {
@@ -53,6 +60,7 @@ __DEV__ === 'serve' && console.log('__DEV__log', __DEV__);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
-    <App />
+    // <App />
+    <Calendar></Calendar>
   // </React.StrictMode>
 )
