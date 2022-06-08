@@ -1,5 +1,5 @@
 import dayjs, {Dayjs} from 'dayjs'
-import { throttle } from 'lodash'
+import { throttle } from 'lodash-es'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import './calendar.scss'
 
