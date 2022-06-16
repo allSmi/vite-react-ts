@@ -223,8 +223,8 @@ const Calendar: React.FC<Props> = function (props) {
       setAnimate(true)
     }
 
-    if (Math.abs(startPos.x - endPos.x) >= width / 2) {
-      // 如果移动距离大于 width/2 ，则切换月份
+    if (Math.abs(startPos.x - endPos.x) >= width / 6) {
+      // 如果移动距离大于 width/6 ，则切换月份
       if(direction === 'LEFT') {
         setTransform(-width * 2)
         changeMonthType.current = 'NEXT'
@@ -233,7 +233,7 @@ const Calendar: React.FC<Props> = function (props) {
         changeMonthType.current = 'LAST'
       }
     } else {
-      // 如果小于 width/2 ，则停留在当前月
+      // 如果小于 width/6 ，则停留在当前月
       setTransform(-width)
       changeMonthType.current = null
     }
@@ -253,16 +253,15 @@ const Calendar: React.FC<Props> = function (props) {
 
   let transionEndHandle = useCallback((e: React.TransitionEvent)=>{
     setAnimate(false)
-
-    // 动画结束后切换月份,重置transform
-    if(changeMonthType.current === 'NEXT') {
-      setCurrentMonthHandle(currentDayjs, 'next')
-    } else if(changeMonthType.current === 'LAST'){
-      setCurrentMonthHandle(currentDayjs, 'last')
-    }
-
-    setTransform(-width)
-
+    setTimeout(() => {
+        // 动画结束后切换月份,重置transform
+        if(changeMonthType.current === 'NEXT') {
+          setCurrentMonthHandle(currentDayjs, 'next')
+        } else if(changeMonthType.current === 'LAST'){
+          setCurrentMonthHandle(currentDayjs, 'last')
+        }
+        setTransform(-width)
+    }, 20);
   }, [width, currentDayjs, setCurrentMonthHandle]) // [width, currentDayjs, monthList]
 
   // 生成本月，前一个月，后一月的日历
