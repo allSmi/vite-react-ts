@@ -27,7 +27,8 @@ export default defineConfig(({command, mode})=>{
     define: {
       'process.env': {
         'FOO': 'aaa',
-        'BAR': 111
+        'BAR': 111,
+        'NODE_ENV': 'xxxxxddd'
       },
       '__DEV__': JSON.stringify(command)
       // '__DEV__': false
@@ -36,7 +37,18 @@ export default defineConfig(({command, mode})=>{
     },
     plugins: [
       Inspect(),
-      react(),
+      react({
+        babel: {
+          parserOpts: { plugins: ['decorators-legacy'] },
+          plugins: [
+            ['@babel/plugin-proposal-decorators', { legacy: true }],
+            [
+                '@babel/plugin-proposal-class-properties',
+                { loose: false },
+            ],
+          ],
+        }
+      }),
       legacy()
       // legacy({
       //   targets: ['defaults', 'not IE 11']

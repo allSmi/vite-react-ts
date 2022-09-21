@@ -16,6 +16,17 @@ import './css/index.scss'
 // import url from '/src/img/1.jpeg'
 import url from './img/1.jpeg'
 import Calendar from './component/calendar1'
+import TestDec from './testDec/index.jsx'
+
+const env = process.env;
+
+console.log('%c11', 'padding: 1px; border-radius: 3px; color: #fff; background: red', env.NODE_ENV)
+
+
+console.log('%c11', 'padding: 1px; border-radius: 3px; color: #fff; background: red', process.env.NODE_ENV)
+console.log('%c22', 'padding: 1px; border-radius: 3px; color: #fff; background: red', process.env)
+console.log('%c33', 'padding: 1px; border-radius: 3px; color: #fff; background: red', import.meta.env)
+const testdec = new TestDec()
 
 aaa()
 testDebounce()

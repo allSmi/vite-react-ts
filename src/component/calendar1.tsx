@@ -2,6 +2,8 @@ import dayjs, {Dayjs} from 'dayjs'
 import { throttle } from 'lodash-es'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import './calendar.scss'
+import  { observer } from 'mobx-react'
+import React from 'react'
 
 interface Props {
 
@@ -93,7 +95,7 @@ function genMonth(dayjs: Dayjs): Array<DayInfo[]> {
   return temp
 }
 
-const Calendar: React.FC<Props> = function (props) {
+const Calendar: React.FC<Props> = observer(function (props) {
 
   let [state,forceUpdate] = useState(0)
 
@@ -261,7 +263,7 @@ const Calendar: React.FC<Props> = function (props) {
           setCurrentMonthHandle(currentDayjs, 'last')
         }
         setTransform(-width)
-    }, 20);
+    }, 100);
   }, [width, currentDayjs, setCurrentMonthHandle]) // [width, currentDayjs, monthList]
 
   // 生成本月，前一个月，后一月的日历
@@ -316,7 +318,11 @@ const Calendar: React.FC<Props> = function (props) {
               }}>
                 {
                   monthList.map((monthItem, mIndex) => {
-                    return <div className='month-item' key={'mouth-' + mIndex} onClick={(e)=>{
+
+                    let key = monthItem[1][0].day.format('YYYY-MM')
+
+                    //  key={'mouth-' + mIndex}
+                    return <div className='month-item' key={key} onClick={(e)=>{
                       selectDateHandle(e)
                     }}>
                       <div style={{'textAlign': 'center'}}>{monthItem[1][0].day.format('YYYY-MM')}</div>
@@ -346,6 +352,6 @@ const Calendar: React.FC<Props> = function (props) {
               </div>
             </div>
           </div>
-}
+})
 
 export default Calendar
