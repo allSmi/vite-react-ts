@@ -15,7 +15,7 @@ import style1 from './css/index.module.scss'
 import './css/index.scss'
 // import url from '/src/img/1.jpeg'
 import url from './img/1.jpeg'
-import Calendar from './component/calendar1'
+import Calendar, { DayInfo, SelectDoneType, SelectRangeDoneType } from './component/calendar1'
 import TestDec from './testDec/index.jsx'
 
 const env = process.env;
@@ -72,6 +72,21 @@ __DEV__ === 'serve' && console.log('__DEV__log', __DEV__);
 ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
     // <App />
-    <Calendar></Calendar>
+    <Calendar
+      // range
+      muti
+      canCancle
+      labelRender={(dayInfo: DayInfo) => { 
+        return <div>{ dayInfo.isToday ? '今' : '' }</div>
+      }}
+      onSelectRangeDone={(range: SelectRangeDoneType)=>{
+        console.log(range);
+      }}
+      onSelectDone={(selectDates: SelectDoneType)=>{
+        console.log(selectDates);
+      }}
+      defaultValue={['2022-09-08', '2022-09-18', '2022-09-19']}
+      defaultRangeValue={['2022-09-08', '2022-09-18']}
+    ></Calendar>
   // </React.StrictMode>
 )
