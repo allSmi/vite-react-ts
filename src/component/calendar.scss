@@ -5,6 +5,8 @@
   overflow: hidden;
 
   width: 100%;
+
+  will-change: transform;
 }
 .month-container-inner {
   display: flex;
@@ -19,6 +21,29 @@
   padding-top: 30px;
 
   flex: 1 0 auto;
+  .month-toggle {
+    display: flex;
+    justify-content: center;
+    .current-month {
+      width: 100px;
+    }
+    .month-toggle-last-year {
+      width: 40px;
+      height: 40px;
+    }
+    .month-toggle-last-month {
+      width: 40px;
+      height: 40px;
+    }
+    .month-toggle-next-month {
+      width: 40px;
+      height: 40px;
+    }
+    .month-toggle-next-year {
+      width: 40px;
+      height: 40px;
+    }
+  }
   .row {
     display: flex;
     flex-direction: row;
@@ -39,6 +64,7 @@
   flex: 1;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   &.last,
   &.next {
     // opacity: 0;
@@ -62,6 +88,10 @@
 
     align-items: center;
     justify-content: center;
+  }
+
+  .day-label {
+    color: #ccc;
   }
 
   &.selected {
