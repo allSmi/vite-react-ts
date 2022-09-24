@@ -164,7 +164,8 @@
       }
   }
 
-  &.is-start-date:not(.is-end-date):not(.is-last-date)::after {
+  // :not(.is-last-date)
+  &.is-start-date:not(.is-end-date)::after {
     position: absolute;
     display: block;
     content: '';
@@ -176,7 +177,8 @@
     z-index: -1;
   }
 
-  &.is-end-date:not(.is-start-date):not(.is-first-date)::before {
+  // :not(.is-first-date)
+  &.is-end-date:not(.is-start-date)::before {
     position: absolute;
     display: block;
     content: '';
