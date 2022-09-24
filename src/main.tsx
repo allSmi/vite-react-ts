@@ -66,27 +66,35 @@ console.log('vite-meta', import.meta);
 
 __DEV__ === 'serve' && console.log('__DEV__log', __DEV__);
 
-
+let ranges = ['2022-08-21', '2022-09-18']
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
     // <App />
     <Calendar
-      // range
-      muti
+      range
+      // muti
       canCancle
-      labelRender={(dayInfo: DayInfo) => { 
-        return <div>{ dayInfo.isToday ? '今' : '' }</div>
+      // labelRender={(dayInfo: DayInfo) => { 
+      //   return <div>1</div>
+      // }}
+      extraLabelRender={(dayInfo: DayInfo) => {
+        if (dayInfo.type === 'current') {
+          return <div className='dot'>.</div>
+        }
       }}
       onSelectRangeDone={(range: SelectRangeDoneType)=>{
         console.log(range);
+        ranges = range.map(item => {
+          return item.show
+        })
       }}
       onSelectDone={(selectDates: SelectDoneType)=>{
         console.log(selectDates);
       }}
-      defaultValue={['2022-09-08', '2022-09-18', '2022-09-19']}
-      defaultRangeValue={['2022-09-08', '2022-09-18']}
+      defaultValue={['2022-08-29','2022-08-30','2022-08-31']} // , '2022-09-18', '2022-10-19'
+      defaultRangeValue={ranges}
     ></Calendar>
   // </React.StrictMode>
 )

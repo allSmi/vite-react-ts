@@ -15,6 +15,7 @@ interface Props {
   canCancle?: boolean // 非 range 时生效，是否可以取消选中
   defaultValue?: Array<any>
   defaultRangeValue?: Array<any>
+  extraLabelRender?: Function
 }
 
 export type SelectRangeDoneType = [DayInfo, DayInfo]
@@ -40,7 +41,7 @@ type ChangeMonthType = 'NEXT'|'LAST'|null
 
 const Calendar: React.FC<Props> = observer(function (props) {
 
-  const { labelRender, range, muti, onSelectDone, onSelectRangeDone, canCancle, defaultValue, defaultRangeValue } = props
+  const { labelRender, range, muti, onSelectDone, onSelectRangeDone, canCancle, defaultValue, defaultRangeValue, extraLabelRender } = props
 
   const monthTemp = useRef<MonthTemp>({}) // 月份缓存，切换月份时先将当前月份缓存，下次直接从缓存中获取
 
@@ -50,7 +51,17 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   let [update,forceUpdate] = useState(0) // 强制重新渲染组件
 
-  let [currentMonth, setCurrentMonth] = useState(dayjs()) // useState(dayjs('2018/08/08')) // 当前正在显示的日期，会计算当前日期所在的月份，初始值为今天，也可从外部传入
+  let [currentMonth, setCurrentMonth] = useState(() => {
+    if (range && defaultRangeValue?.length) {
+      return dayjs(defaultRangeValue[0])
+    }
+
+    if (!range && defaultValue?.length) {
+      return dayjs(defaultValue[0])
+    }
+
+    return dayjs()
+  }) // useState(dayjs('2018/08/08')) // 当前正在显示的日期，会计算当前日期所在的月份，初始值为今天，也可从外部传入
 
   let [monthList, setMonthList] = useState<Array<Array<DayInfo[]>>>([]) // 当前渲染的月份列表，目前为三个月份，[上个月，当前月，下个月]
 
@@ -66,33 +77,83 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   let changeMonthType = useRef<ChangeMonthType>(null) // touchEnd后，切换月份的类型 NEXT/LAST/null
 
-  let selectDate1 = useRef<DayInfo | null>(range && defaultRangeValue?.[0] ? {
-    show: defaultRangeValue[0],
-    day: dayjs(defaultRangeValue[0])
-  } : null)
-  let selectDate2 = useRef<DayInfo | null>(range && defaultRangeValue?.[1] ? {
-    show: defaultRangeValue[1],
-    day: dayjs(defaultRangeValue[1])
-  } : null)
+  let selectDate1 = useRef<DayInfo | null>(null)
+  let selectDate2 = useRef<DayInfo | null>(null)
 
-  let startDate = useRef<DayInfo | null>(range && defaultRangeValue?.[0] ? {
-    show: defaultRangeValue[0],
-    day: dayjs(defaultRangeValue[0])
-  } : null)
-  let endDate = useRef<DayInfo | null>(range && defaultRangeValue?.[1] ? {
-    show: defaultRangeValue[1],
-    day: dayjs(defaultRangeValue[1])
-  } : null)
+  let startDate = useRef<DayInfo | null>(null)
+  let endDate = useRef<DayInfo | null>(null)
 
   // 非 range 时的上一次选择
   let lastSelectDate = useRef<DayInfo | null>(null)
   // 非 range 时的日期选择集合
-  let selectDates = useRef<Array<DayInfo>>(defaultValue ? defaultValue.map(item => {
-    return {
-      show: item,
-      day: dayjs(item)
+  let selectDates = useRef<Array<DayInfo>>([])
+
+  useLayoutEffect(() => {
+    selectDate1.current = range && defaultRangeValue?.[0] ? {
+      show: defaultRangeValue[0],
+      day: dayjs(defaultRangeValue[0])
+    } : null
+
+    selectDate2.current = range && defaultRangeValue?.[1] ? {
+      show: defaultRangeValue[1],
+      day: dayjs(defaultRangeValue[1])
+    } : null
+
+    startDate.current = range && defaultRangeValue?.[0] ? {
+      show: defaultRangeValue[0],
+      day: dayjs(defaultRangeValue[0])
+    } : null
+
+    endDate.current = range && defaultRangeValue?.[1] ? {
+      show: defaultRangeValue[1],
+      day: dayjs(defaultRangeValue[1])
+    } : null
+
+    if (!range) {
+      if (defaultValue?.length) {
+        if (muti) {
+          selectDates.current = defaultValue.map((item: string) => {
+            return {
+              show: item,
+              day: dayjs(item)
+            }
+          })
+        } else {
+          selectDates.current = [{
+            show: defaultValue[0],
+            day: dayjs(defaultValue[0])
+          }]
+        }
+      }
     }
-  }) : [])
+
+  }, [])
+
+  // 生成当前月，前一个月，后一月的日历
+  useLayoutEffect(()=>{
+
+    // console.log('%cmonthTemp', 'padding: 1px; border-radius: 3px; color: #fff; background: red', monthTemp.current)
+
+    let lastMonthDayjs = currentMonth.subtract(1, 'month')
+    let currentMonthDayjs = currentMonth
+    let nextMonthDayjs = currentMonth.add(1, 'month')
+
+    let lastMonthTemp = genMonth(lastMonthDayjs)
+    let currentMonthTemp = genMonth(currentMonthDayjs)
+    let nextMonthTemp = genMonth(nextMonthDayjs)
+
+    // console.log(currentMonth.format('YYYY-MM'));
+    // console.log(lastMonth)
+    // console.log('currentMonth',currentMonth)
+    // console.log(nextMonth)
+
+    setMonthList([
+      lastMonthTemp,
+      currentMonthTemp,
+      nextMonthTemp
+    ])
+    
+  }, [currentMonth])
 
   // 生成指定月份的日历
   const genMonth = (dayjs: Dayjs): Array<DayInfo[]> => {
@@ -115,12 +176,20 @@ const Calendar: React.FC<Props> = observer(function (props) {
     let firstDayWeekday = first.day()
 
     function isSelectFn(show: string) {
-      if (selectDates.current) {
+      if (!range && selectDates.current) {
         for (let i = 0; i < selectDates.current.length; i++) {
           const date = selectDates.current[i];
           if (date.show === show) return true
         }
       }
+
+      if (range && defaultRangeValue?.length === 2) {
+        if (show === defaultRangeValue[0] && show === defaultRangeValue[1]) {
+          return true
+        }
+      }
+
+      return false
     }
   
     // 用上一个月补位
@@ -131,20 +200,27 @@ const Calendar: React.FC<Props> = observer(function (props) {
         day,
         type: 'last',
         show,
-        isSelect: isSelectFn(show)
       })
     }
-  
+    
+    // 当前月份
     for (let index = 0; index < total; index++) {
       let day = first.add(index, 'day')
       let show = day.format('YYYY-MM-DD')
-      dayInfoArr.push({
+
+      let dayInfo = {
         day,
-        type: 'current',
+        type: 'current' as 'current',
         isToday: today === show,
         show,
         isSelect: isSelectFn(show)
-      })
+      }
+
+      if (!muti && !range && !lastSelectDate.current && show === defaultValue?.[0]) {
+        lastSelectDate.current = dayInfo
+      }
+
+      dayInfoArr.push(dayInfo)
     }
   
     // 判断还需要用下一个补位几日
@@ -169,37 +245,88 @@ const Calendar: React.FC<Props> = observer(function (props) {
   
     // 每7个放一组
     let temp = []
-  
+    
     for (let index = 0; index < dayInfoArr.length; index++) {
       const item = dayInfoArr[index];
       let i = Math.floor(index / 7)
       temp[i] ? temp[i].push(item) : (temp[i] = [item])
     }
-  
+
     return temp
   }
 
-  let isSelected = useCallback((dayItem: DayInfo, startDate: DayInfo | null, endDate: DayInfo | null) => {
+  let isSelected = useCallback((dayItem: DayInfo) => {
   
     if (dayItem.isSelect) return true
   
     // 开始日期和结束日期之间的日期也要选中（当前显示月份中的上/下个月的日期除外）
-    if (range && startDate && endDate) {
-      if (dayItem.type === 'current' && dayItem.show >= startDate.show && dayItem.show <= endDate.show) {
+    if (range && startDate.current && endDate.current) {
+      if (dayItem.type === 'current' && dayItem.show >= startDate.current.show && dayItem.show <= endDate.current.show) {
         return true
       }
     }
   }, [])
 
-  let isStartDate = useCallback((dayItem: DayInfo, startDate: DayInfo | null, endDate: DayInfo | null) => {
-    if (dayItem.type === 'current' && dayItem.show === startDate?.show) {
+  let isStartDate = useCallback((dayItem: DayInfo) => {
+    if (dayItem.type === 'current' && dayItem.show === startDate.current?.show) {
       return true
     }
   }, [])
-  let isEndDate = useCallback((dayItem: DayInfo, startDate: DayInfo | null, endDate: DayInfo | null) => {
-    if (dayItem.type === 'current' && dayItem.show === endDate?.show) {
+
+  let isEndDate = useCallback((dayItem: DayInfo) => {
+    if (dayItem.type === 'current' && dayItem.show === endDate.current?.show) {
       return true
     }
+  }, [])
+
+  let isRangeSelected = useCallback((dayItem: DayInfo) => {
+
+    if (!range) {
+      return false
+    }
+
+    if (dayItem.type === 'current') {
+
+      if (dayItem.show === selectDate1.current?.show) {
+        return true
+      }
+
+      if (dayItem.show === selectDate2.current?.show) {
+        return true
+      }
+
+    }
+  }, [])
+
+  let isFirstDate = useCallback((dayItem: DayInfo) => {
+    let firstDate = dayItem.day.startOf('month').format('YYYY-MM-DD')
+    return dayItem.show === firstDate
+  }, [])
+
+  let isLastDate = useCallback((dayItem: DayInfo) => {
+    let lastDate = dayItem.day.endOf('month').format('YYYY-MM-DD')
+    return dayItem.show === lastDate
+  }, [])
+
+  let _labelRender = useCallback((dayInfo: DayInfo) => {
+    if (dayInfo.type === 'current') {
+      if (startDate.current?.show === endDate.current?.show) {
+        if (dayInfo.show === startDate.current?.show) {
+          return <div className='label'>开始/结束</div>
+        }
+      } else {
+        if (dayInfo.show === startDate.current?.show) {
+          return <div className='label'>开始</div>
+        }
+        if (dayInfo.show === endDate.current?.show) {
+          return <div className='label'>结束</div>
+        }
+      }
+
+      if (dayInfo.isToday) return <div className='label'>今</div>
+    }
+    
+    return null
   }, [])
 
   // 计算容器宽度
@@ -328,6 +455,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
         if (lastSelectDate.current && lastSelectDate.current.show !== dayInfo.show) {
           lastSelectDate.current.isSelect = false
           lastSelectDate.current = dayInfo
+          console.log('%cmonthList', 'padding: 1px; border-radius: 3px; color: #fff; background: red', monthList)
         } else {
           // 缓存选择的日期
           lastSelectDate.current = dayInfo
@@ -445,32 +573,6 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   }, [width, currentMonth, toggleMonthHandle]) // [width, currentMonth, monthList]
 
-  // 生成当前月，前一个月，后一月的日历
-  useLayoutEffect(()=>{
-
-    // console.log('%cmonthTemp', 'padding: 1px; border-radius: 3px; color: #fff; background: red', monthTemp.current)
-
-    let lastMonthDayjs = currentMonth.subtract(1, 'month')
-    let currentMonthDayjs = currentMonth
-    let nextMonthDayjs = currentMonth.add(1, 'month')
-
-    let lastMonthTemp = genMonth(lastMonthDayjs)
-    let currentMonthTemp = genMonth(currentMonthDayjs)
-    let nextMonthTemp = genMonth(nextMonthDayjs)
-
-    // console.log(currentMonth.format('YYYY-MM'));
-    // console.log(lastMonth)
-    // console.log('currentMonth',currentMonth)
-    // console.log(nextMonth)
-
-    setMonthList([
-      lastMonthTemp,
-      currentMonthTemp,
-      nextMonthTemp
-    ])
-
-  }, [currentMonth])
-
   return <div className='calendar'>
             <div
               className='month-container'
@@ -506,6 +608,15 @@ const Calendar: React.FC<Props> = observer(function (props) {
                           toggleMonthHandle(currentMonth, 'next', 'year')
                         }}>&gt;&gt;</div>
                       </div>
+                      <div className='week-show'>
+                        <div className='week-show-item'>日</div>
+                        <div className='week-show-item'>一</div>
+                        <div className='week-show-item'>二</div>
+                        <div className='week-show-item'>三</div>
+                        <div className='week-show-item'>四</div>
+                        <div className='week-show-item'>五</div>
+                        <div className='week-show-item'>六</div>
+                      </div>
                       {
                         monthItem.map((weekItems, weekItemsIndex) => {
                           return <div className='row' key={`${key}-row-${weekItemsIndex}`}>
@@ -516,16 +627,23 @@ const Calendar: React.FC<Props> = observer(function (props) {
                                           e.stopPropagation()
                                           selectDayHandle(e, dayItem)
                                         }}
-                                        data-ymd={dayItem.day.format('YYYY-MM-DD')}
-                                        className={classNames(`day-item ${dayItem.type}`, {
-                                          'today': dayItem.isToday,
-                                          'selected': isSelected(dayItem, startDate.current, endDate.current),
-                                          'start-date': isStartDate(dayItem, startDate.current, endDate.current),
-                                          'end-date': isEndDate(dayItem, startDate.current, endDate.current)
+                                        // data-ymd={dayItem.day.format('YYYY-MM-DD')}
+                                        className={classNames(`day-item-container ${dayItem.type}`, {
+                                          'is-range': range,
+                                          'is-today': dayItem.isToday,
+                                          'is-selected': isSelected(dayItem),
+                                          'is-start-date': isStartDate(dayItem),
+                                          'is-end-date': isEndDate(dayItem),
+                                          'is-range-selected': isRangeSelected(dayItem),
+                                          'is-first-date': isFirstDate(dayItem),
+                                          'is-last-date': isLastDate(dayItem)
                                         })}
                                         key={`${dayItem.day.format('YYYY-MM-DD')}`}>
-                                          <div className='day-show'>{dayItem.day.date()}</div>
-                                          <div className='day-label'>{labelRender?.(dayItem)}</div>
+                                          <div className={'day-item'}>
+                                            <div className='day-show'>{dayItem.day.date()}</div>
+                                            <div className='day-label'>{(labelRender || _labelRender)(dayItem)}</div>
+                                          </div>
+                                          {/* <div className='day-extra-label'>{extraLabelRender?.(dayItem)}</div> */}
                                         </div>
                               }))
                             }
