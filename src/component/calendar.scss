@@ -73,6 +73,7 @@
   display: flex;
   justify-content: center;
   position: relative;
+  color: #222;
 
   &.last,
   &.next {
@@ -128,9 +129,9 @@
 
   &.is-today {
     .day-item {
-      font-weight: bold;
+      // font-weight: bold;
 
-      color: blue;
+      color: #FF8E22;
     }
   }
 
@@ -139,23 +140,27 @@
       background: #39dcac;
       border-radius: 2px;
       color: #fff;
-      font-weight: bold;
+      // font-weight: bold;
     }
   }
 
   &.is-range.is-selected:not(.is-range-selected) {
-    background: #39dcac;
+    background: #FFF2E6;
+    .day-item {
+      background: transparent;
+      color: #222;
+    }
   }
 
   &.is-start-date, &.is-end-date {
     .day-item {
-      background: red;
+      background: #FF8E22;
     }
   }
 
   &.is-range-selected {
       .day-item {
-        background: red;
+        background: #FF8E22;
       }
   }
 
@@ -167,7 +172,7 @@
     height: 100%;
     top: 0;
     right: 0;
-    background: #39dcac;
+    background: #FFF2E6;
     z-index: -1;
   }
 
@@ -179,7 +184,7 @@
     height: 100%;
     top: 0;
     left: 0;
-    background: #39dcac;
+    background: #FFF2E6;
     z-index: -1;
   }
 }
