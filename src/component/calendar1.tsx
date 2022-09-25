@@ -674,7 +674,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
                                             <div className='day-show'>{dayItem.day.date()}</div>
                                             <div className='day-label'>{(labelRender || _labelRender)(dayItem)}</div>
                                           </div>
-                                          {/* <div className='day-extra-label'>{extraLabelRender?.(dayItem)}</div> */}
+                                          <div className='day-extra-label'>{extraLabelRender?.(dayItem)}</div>
                                         </div>
                               }))
                             }

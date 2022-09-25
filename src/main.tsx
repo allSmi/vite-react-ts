@@ -81,7 +81,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       // }}
       extraLabelRender={(dayInfo: DayInfo) => {
         if (dayInfo.type === 'current') {
-          return <div className='dot'>.</div>
+          return <div className='dot' style={{
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
+            background: dayInfo.show === '2022-08-10' ? '#FF8E22' : 'transparent',
+            marginTop: '4px'
+          }}></div>
         }
       }}
       onSelectRangeDone={(range: SelectRangeDoneType)=>{

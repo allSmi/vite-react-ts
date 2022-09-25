@@ -71,9 +71,11 @@
 .day-item-container {
   flex-grow: 1;
   display: flex;
-  justify-content: center;
+  // justify-content: center;
   position: relative;
   color: #222;
+  align-items: center;
+  flex-direction: column;
 
   &.last,
   &.next {
@@ -126,6 +128,10 @@
       }
     }
   }
+
+  // .day-extra-label {
+  //   height: 0;
+  // }
 
   &.is-today {
     .day-item {
