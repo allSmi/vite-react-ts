@@ -13,11 +13,12 @@ interface Props {
   range?: boolean // 是否选中区间
   muti?: boolean // 是否可以多选，非 range 时生效
   canCancle?: boolean // 非 range 时生效，是否可以取消选中
-  defaultValue?: Array<any>
-  defaultRangeValue?: Array<any>
+  defaultValue?: Array<any> // 非 range 时生效，默认选中的日期
+  defaultRangeValue?: Array<any> // range 时生效，默认选中的日期区间
   extraLabelRender?: Function
-  beginText?: string
-  endText?: string
+  beginText?: string // 开始日期的文案
+  endText?: string // 结束日期的文案
+  highLightDates?: Array<any> // 需要高亮的日期
 }
 
 export type SelectRangeDoneType = [DayInfo, DayInfo]
@@ -43,7 +44,20 @@ type ChangeMonthType = 'NEXT'|'LAST'|null
 
 const Calendar: React.FC<Props> = observer(function (props) {
 
-  const { labelRender, range, muti, onSelectDone, onSelectRangeDone, canCancle, defaultValue, defaultRangeValue, extraLabelRender, beginText, endText } = props
+  const { 
+    labelRender, 
+    range, 
+    muti, 
+    onSelectDone, 
+    onSelectRangeDone, 
+    canCancle, 
+    defaultValue, 
+    defaultRangeValue, 
+    extraLabelRender, 
+    beginText, 
+    endText,
+    highLightDates
+  } = props
 
   const monthTemp = useRef<MonthTemp>({}) // 月份缓存，切换月份时先将当前月份缓存，下次直接从缓存中获取
 
@@ -308,6 +322,10 @@ const Calendar: React.FC<Props> = observer(function (props) {
   let isLastDate = useCallback((dayItem: DayInfo) => {
     let lastDate = dayItem.day.endOf('month').format('YYYY-MM-DD')
     return dayItem.show === lastDate
+  }, [])
+
+  let isHighLightDate = useCallback((dayItem: DayInfo) => {
+    return highLightDates?.includes(dayItem.show)
   }, [])
 
   let _labelRender = useCallback((dayInfo: DayInfo) => {
@@ -648,7 +666,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
                                           'is-end-date': isEndDate(dayItem),
                                           'is-range-selected': isRangeSelected(dayItem),
                                           'is-first-date': isFirstDate(dayItem),
-                                          'is-last-date': isLastDate(dayItem)
+                                          'is-last-date': isLastDate(dayItem),
+                                          'is-high-light': isHighLightDate(dayItem)
                                         })}
                                         key={`${dayItem.day.format('YYYY-MM-DD')}`}>
                                           <div className={'day-item'}>

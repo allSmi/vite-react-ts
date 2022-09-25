@@ -74,8 +74,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     // <App />
     <Calendar
       // range
-      muti
-      canCancle
+      // muti
+      // canCancle
       // labelRender={(dayInfo: DayInfo) => { 
       //   return <div>1</div>
       // }}
@@ -95,6 +95,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       }}
       defaultValue={['2022-08-29','2022-08-30','2022-08-31']} // , '2022-09-18', '2022-10-19'
       defaultRangeValue={ranges}
+      highLightDates={['2022-08-19','2022-08-10','2022-08-11']}
       // beginText="开始日"
       // endText="结束日"
     ></Calendar>
