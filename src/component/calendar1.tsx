@@ -16,6 +16,8 @@ interface Props {
   defaultValue?: Array<any>
   defaultRangeValue?: Array<any>
   extraLabelRender?: Function
+  beginText?: string
+  endText?: string
 }
 
 export type SelectRangeDoneType = [DayInfo, DayInfo]
@@ -41,7 +43,7 @@ type ChangeMonthType = 'NEXT'|'LAST'|null
 
 const Calendar: React.FC<Props> = observer(function (props) {
 
-  const { labelRender, range, muti, onSelectDone, onSelectRangeDone, canCancle, defaultValue, defaultRangeValue, extraLabelRender } = props
+  const { labelRender, range, muti, onSelectDone, onSelectRangeDone, canCancle, defaultValue, defaultRangeValue, extraLabelRender, beginText, endText } = props
 
   const monthTemp = useRef<MonthTemp>({}) // 月份缓存，切换月份时先将当前月份缓存，下次直接从缓存中获取
 
@@ -312,14 +314,14 @@ const Calendar: React.FC<Props> = observer(function (props) {
     if (dayInfo.type === 'current') {
       if (startDate.current?.show === endDate.current?.show) {
         if (dayInfo.show === startDate.current?.show) {
-          return <div className='label'>开始/结束</div>
+          return <div className='label'>{ beginText ?? '开始'}/{ endText ?? '结束'}</div>
         }
       } else {
         if (dayInfo.show === startDate.current?.show) {
-          return <div className='label'>开始</div>
+          return <div className='label'>{ beginText ?? '开始'}</div>
         }
         if (dayInfo.show === endDate.current?.show) {
-          return <div className='label'>结束</div>
+          return <div className='label'>{ endText ?? '结束'}</div>
         }
       }
 
@@ -423,7 +425,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
         onSelectRangeDone?.([startDate.current, endDate.current])
       }
     } else {
-
+      // 非 range 
       if (canCancle) {
 
         if (dayInfo.isSelect) {
@@ -432,14 +434,20 @@ const Calendar: React.FC<Props> = observer(function (props) {
             return item.show === dayInfo.show
           })
 
-          selectDates.current.slice(index, 1)
+          selectDates.current.splice(index, 1)
         } else {
           // 选中
           selectDates.current.push(dayInfo)
         }
 
         dayInfo.isSelect = !dayInfo.isSelect
+
       } else {
+        // 不可以取消
+        if (dayInfo.isSelect) {
+          return
+        }
+
         dayInfo.isSelect = true
         // 判断是否已经选中了
         let has = selectDates.current.some(item => {
@@ -455,10 +463,14 @@ const Calendar: React.FC<Props> = observer(function (props) {
         if (lastSelectDate.current && lastSelectDate.current.show !== dayInfo.show) {
           lastSelectDate.current.isSelect = false
           lastSelectDate.current = dayInfo
-          console.log('%cmonthList', 'padding: 1px; border-radius: 3px; color: #fff; background: red', monthList)
+          // console.log('%cmonthList', 'padding: 1px; border-radius: 3px; color: #fff; background: red', monthList)
         } else {
           // 缓存选择的日期
           lastSelectDate.current = dayInfo
+        }
+
+        if (dayInfo.isSelect) {
+          selectDates.current = [dayInfo]
         }
       }
 

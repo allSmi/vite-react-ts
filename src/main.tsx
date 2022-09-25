@@ -73,8 +73,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
     // <App />
     <Calendar
-      range
-      // muti
+      // range
+      muti
       canCancle
       // labelRender={(dayInfo: DayInfo) => { 
       //   return <div>1</div>
@@ -95,6 +95,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       }}
       defaultValue={['2022-08-29','2022-08-30','2022-08-31']} // , '2022-09-18', '2022-10-19'
       defaultRangeValue={ranges}
+      // beginText="开始日"
+      // endText="结束日"
     ></Calendar>
   // </React.StrictMode>
 )
