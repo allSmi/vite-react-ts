@@ -1,6 +1,6 @@
 import dayjs, {Dayjs} from 'dayjs'
 import { find, throttle } from 'lodash-es'
-import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react'
+import { useRef, useState, useCallback, useLayoutEffect } from 'react'
 import './calendar.scss'
 import  { observer } from 'mobx-react'
 import React from 'react'
@@ -118,6 +118,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
   // 非 range 时的日期选择集合
   let selectDates = useRef<Array<DayInfo>>([])
 
+  // 初始化数据
   useLayoutEffect(() => {
     selectDate1.current = range && defaultRangeValue?.[0] ? {
       show: defaultRangeValue[0],
@@ -162,8 +163,6 @@ const Calendar: React.FC<Props> = observer(function (props) {
   // 生成当前月，前一个月，后一月的日历
   useLayoutEffect(()=>{
 
-    // console.log('%cmonthTemp', 'padding: 1px; border-radius: 3px; color: #fff; background: red', monthTemp.current)
-
     let lastMonthDayjs = currentMonth.subtract(1, 'month')
     let currentMonthDayjs = currentMonth
     let nextMonthDayjs = currentMonth.add(1, 'month')
@@ -177,11 +176,18 @@ const Calendar: React.FC<Props> = observer(function (props) {
     // console.log('currentMonth',currentMonth)
     // console.log(nextMonth)
 
-    setMonthList([
+    let monthListTemp = [
       lastMonthTemp,
       currentMonthTemp,
       nextMonthTemp
-    ])
+    ]
+
+    // 缓存月的数据
+    monthTemp.current[lastMonthDayjs.format('YYYY-MM')] = monthListTemp[0]
+    monthTemp.current[currentMonthDayjs.format('YYYY-MM')] = monthListTemp[1]
+    monthTemp.current[nextMonthDayjs.format('YYYY-MM')] = monthListTemp[2]
+
+    setMonthList(monthListTemp)
     
   }, [currentMonth])
 
@@ -376,7 +382,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
     }
   },[])
 
-  let toggleMonthFn = useCallback((e: React.MouseEvent ,type: 'last' | 'next', rangeType: 'month' | 'year' = 'month') => {
+  let toggleMonthFn = useCallback((e: React.MouseEvent , type: 'last' | 'next', rangeType: 'month' | 'year' = 'month') => {
 
     e.stopPropagation()
     e.preventDefault()
@@ -394,11 +400,6 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   // 设置当前展示的月份，currentDayjs变化后会触发重新计算monthList
   let toggleMonthHandle = useCallback((dayjs: Dayjs, type: 'last' | 'next', rangeType: 'month' | 'year' = 'month', e?: React.MouseEvent) => {
-
-    // 先缓存月的数据
-    monthTemp.current[dayjs.subtract(1, 'month').format('YYYY-MM')] = monthList[0]
-    monthTemp.current[dayjs.format('YYYY-MM')] = monthList[1]
-    monthTemp.current[dayjs.add(1, 'month').format('YYYY-MM')] = monthList[2]
 
     let currentMonthTemp = null
     // 上一月/年 下一月/年
@@ -419,7 +420,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
     // 如果选中的是下个月的日期，切换到下个月, 选中下个月的日期
     if (dayInfo.type === 'last' || dayInfo.type === 'next') {
 
-      toggleMonthHandle(currentMonth, dayInfo.type, 'month')
+      // toggleMonthHandle(currentMonth, dayInfo.type, 'month')
+      toggleMonthFn(e, dayInfo.type, 'month')
       
       let weekList = monthTemp.current[dayInfo.day.format('YYYY-MM')]
 

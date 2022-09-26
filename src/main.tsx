@@ -73,7 +73,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
     // <App />
     <Calendar
-      // range
+      range
       // muti
       // canCancle
       // labelRender={(dayInfo: DayInfo) => { 
