@@ -41,7 +41,7 @@ interface MonthTemp {
   [key: string]: Array<DayInfo[]>
 }
 
-type ChangeMonthType = 'NEXT'|'LAST'|null
+type ChangeType = 'NEXT'|'LAST'|null
 
 const isBrowser = !!(
   typeof window !== 'undefined' &&
@@ -105,7 +105,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   let [node, setNode] = useState<HTMLDivElement|null>(null)
 
-  let changeMonthType = useRef<ChangeMonthType>(null) // touchEnd后，切换月份的类型 NEXT/LAST/null
+  let changeType = useRef<ChangeType>(null) // touchEnd后，切换的类型 NEXT/LAST/null
 
   let selectDate1 = useRef<DayInfo | null>(null)
   let selectDate2 = useRef<DayInfo | null>(null)
@@ -376,6 +376,22 @@ const Calendar: React.FC<Props> = observer(function (props) {
     }
   },[])
 
+  let toggleMonthFn = useCallback((e: React.MouseEvent ,type: 'last' | 'next', rangeType: 'month' | 'year' = 'month') => {
+
+    e.stopPropagation()
+    e.preventDefault()
+
+    setAnimate(true)
+
+    if(type === 'next') {
+      setTransform(-width * 2)
+      changeType.current = 'NEXT'
+    } else if(type === 'last'){
+      setTransform(0)
+      changeType.current = 'LAST'
+    }
+  }, [width])
+
   // 设置当前展示的月份，currentDayjs变化后会触发重新计算monthList
   let toggleMonthHandle = useCallback((dayjs: Dayjs, type: 'last' | 'next', rangeType: 'month' | 'year' = 'month', e?: React.MouseEvent) => {
 
@@ -610,15 +626,15 @@ const Calendar: React.FC<Props> = observer(function (props) {
       // 如果移动距离大于 width/6 ，则切换月份
       if(direction === 'LEFT') {
         setTransform(-width * 2)
-        changeMonthType.current = 'NEXT'
+        changeType.current = 'NEXT'
       } else if(direction === 'RIGHT'){
         setTransform(0)
-        changeMonthType.current = 'LAST'
+        changeType.current = 'LAST'
       }
     } else {
       // 如果小于 width/6 ，则停留在当前月
       setTransform(-width)
-      changeMonthType.current = null
+      changeType.current = null
     }
 
     setStartPos({
@@ -640,15 +656,17 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
     // setTimeout(() => {
         // 动画结束后切换月份,重置transform
-        if(changeMonthType.current === 'NEXT') {
+        if(changeType.current === 'NEXT') {
           toggleMonthHandle(currentMonth, 'next', 'month')
-        } else if(changeMonthType.current === 'LAST'){
+        } else if(changeType.current === 'LAST'){
           toggleMonthHandle(currentMonth, 'last', 'month')
         }
         setTransform(-width)
         setAnimate(false)
 
         flag.current = false
+        changeType.current = null
+
     // }, 50);
 
   }, [width, currentMonth, toggleMonthHandle]) // [width, currentMonth, monthList]
@@ -660,13 +678,15 @@ const Calendar: React.FC<Props> = observer(function (props) {
           toggleMonthHandle(currentMonth, 'last', 'year')
         }}>&lt;&lt;</div>
         <div className='month-toggle-last-month' onClick={(e)=>{
-          toggleMonthHandle(currentMonth, 'last', 'month')
+          toggleMonthFn(e, 'last', 'month')
+          // toggleMonthHandle(currentMonth, 'last', 'month')
         }}>
           &lt;
         </div>
         <div className='current-month'>{currentMonth.format('YYYY-MM')}</div>
         <div className='month-toggle-next-month' onClick={(e)=>{
-          toggleMonthHandle(currentMonth, 'next', 'month')
+          toggleMonthFn(e, 'next', 'month')
+          // toggleMonthHandle(currentMonth, 'next', 'month')
         }}>&gt;</div>
         <div className='month-toggle-next-year' onClick={(e)=>{
           toggleMonthHandle(currentMonth, 'next', 'year')
