@@ -19,6 +19,7 @@ interface Props {
   beginText?: string // 开始日期的文案
   endText?: string // 结束日期的文案
   highLightDates?: Array<any> // 需要高亮的日期
+  onMonthChange?: Function // 月份切换时的回调
 }
 
 export type SelectRangeDoneType = [DayInfo, DayInfo]
@@ -56,7 +57,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
     extraLabelRender, 
     beginText, 
     endText,
-    highLightDates
+    highLightDates,
+    onMonthChange
   } = props
 
   const monthTemp = useRef<MonthTemp>({}) // 月份缓存，切换月份时先将当前月份缓存，下次直接从缓存中获取
@@ -369,12 +371,17 @@ const Calendar: React.FC<Props> = observer(function (props) {
     monthTemp.current[dayjs.format('YYYY-MM')] = monthList[1]
     monthTemp.current[dayjs.add(1, 'month').format('YYYY-MM')] = monthList[2]
 
+    let currentMonthTemp = null
     // 上一月/年 下一月/年
     if(type === 'last') {
-      setCurrentMonth(dayjs.subtract(1, rangeType))
+      currentMonthTemp = dayjs.subtract(1, rangeType)
     } else {
-      setCurrentMonth(dayjs.add(1, rangeType))
+      currentMonthTemp = dayjs.add(1, rangeType)
     }
+
+    setCurrentMonth(currentMonthTemp)
+
+    onMonthChange?.(currentMonthTemp.format('YYYY-MM'))
   }, [monthList])
 
   // 选择日期回调函数

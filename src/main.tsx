@@ -90,6 +90,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           }}></div>
         }
       }}
+      onMonthChange={(month: string) => {
+        console.log('%conMonthChange', 'padding: 1px; border-radius: 3px; color: #fff; background: red', month)
+      }}
       onSelectRangeDone={(range: SelectRangeDoneType)=>{
         console.log(range);
         ranges = range.map(item => {
