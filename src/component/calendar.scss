@@ -1,28 +1,6 @@
 .calendar {
   padding: 10px;
   user-select: none;
-}
-.month-container {
-  overflow: hidden;
-
-  width: 100%;
-
-  will-change: transform;
-}
-.month-container-inner {
-  display: flex;
-
-  flex-wrap: nowrap;
-  &.animate {
-    transition: all .5s;
-  }
-}
-.month-item {
-  width: 100%;
-  padding-top: 30px;
-
-  flex: 1 0 auto;
-  
   .month-toggle {
     display: flex;
     justify-content: center;
@@ -46,175 +24,195 @@
       height: 40px;
     }
   }
-
-  .week-show {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .week-show-item {
-      width: 32px;
-      height: 40px;
-      flex-grow: 1;
-      text-align: center;
-    }
+  .month-container {
+    overflow: hidden;
+  
+    width: 100%;
+  
+    will-change: transform;
   }
-
-  .row {
-    display: flex;
-    flex-direction: row;
-
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-}
-
-
-.day-item-container {
-  flex-grow: 1;
-  display: flex;
-  // justify-content: center;
-  position: relative;
-  color: #222;
-  align-items: center;
-  flex-direction: column;
-
-  &.last,
-  &.next {
-    // opacity: 0;
-    color: #ccc;
-  }
-
-  .day-item {
+  .month-container-inner {
     display: flex;
   
-    text-align: center;
+    flex-wrap: nowrap;
+    &.animate {
+      transition: all .5s;
+    }
+  }
+  .month-item {
     width: 100%;
-    height: 40px;
-    // flex: 1;
-    justify-content: center;
+  
+    flex: 1 0 auto;
+  
+    .week-show {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .week-show-item {
+        width: 32px;
+        height: 40px;
+        flex-grow: 1;
+        text-align: center;
+      }
+    }
+  
+    .row {
+      display: flex;
+      flex-direction: row;
+  
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+  }
+  
+  
+  .day-item-container {
+    flex-grow: 1;
+    display: flex;
+    // justify-content: center;
+    position: relative;
+    color: #222;
     align-items: center;
     flex-direction: column;
   
-    position: relative;
-    
-    .day-show {
-      display: flex;
-  
-      width: 32px;
-      height: 40px;
-  
-      pointer-events: none;
-  
-      border-radius: 100%;
-  
-      align-items: center;
-      justify-content: center;
+    &.last,
+    &.next {
+      // opacity: 0;
+      color: #ccc;
     }
   
-    .day-label {
-      position: absolute;
-      width: 100%;
-      white-space: nowrap;
-      bottom: 0;
-      left: 0;
+    .day-item {
       display: flex;
+    
+      text-align: center;
+      width: 100%;
+      height: 40px;
+      // flex: 1;
       justify-content: center;
-      padding-bottom: 2px;
-      z-index: 1;
+      align-items: center;
+      flex-direction: column;
+    
+      position: relative;
       
-      .label {
-        text-align: center;
-        font-size: 20px;
-        transform: scale(0.3);
-        transform-origin: center bottom;
+      .day-show {
+        display: flex;
+    
+        width: 32px;
+        height: 40px;
+    
+        pointer-events: none;
+    
+        border-radius: 100%;
+    
+        align-items: center;
+        justify-content: center;
+      }
+    
+      .day-label {
+        position: absolute;
+        width: 100%;
+        white-space: nowrap;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        padding-bottom: 2px;
+        z-index: 1;
+        
+        .label {
+          text-align: center;
+          font-size: 20px;
+          transform: scale(0.3);
+          transform-origin: center bottom;
+        }
       }
     }
-  }
-
-  // .day-extra-label {
-  //   height: 0;
-  // }
-
-  &.is-today {
-    .day-show, .day-label {
-      // font-weight: bold;
-      color: #FF8E22;
-    }
-  }
-
-  &.is-selected {
-    .day-show {
-      background: #FF8E22;
-      border-radius: 2px;
-      color: #fff;
-      // font-weight: bold;
-    }
-    .day-label {
-      color: #fff;
-    }
-  }
-
-  &.is-range.is-selected:not(.is-range-selected) {
-    .day-item {
-      background: #FFF2E6;
-    }
-    .day-show {
-      background: transparent;
-      color: #222;
-    }
+  
+    // .day-extra-label {
+    //   height: 0;
+    // }
+  
     &.is-today {
+      .day-show, .day-label {
+        // font-weight: bold;
+        color: #FF8E22;
+      }
+    }
+  
+    &.is-selected {
+      .day-show {
+        background: #FF8E22;
+        border-radius: 2px;
+        color: #fff;
+        // font-weight: bold;
+      }
       .day-label {
-        font-weight: bold;
+        color: #fff;
+      }
+    }
+  
+    &.is-range.is-selected:not(.is-range-selected) {
+      .day-item {
+        background: #FFF2E6;
+      }
+      .day-show {
+        background: transparent;
         color: #222;
       }
+      &.is-today {
+        .day-label {
+          font-weight: bold;
+          color: #222;
+        }
+      }
     }
-  }
-
-  &.is-start-date, &.is-end-date {
-    .day-show {
-      background: #FF8E22;
-    }
-  }
-
-  &.is-range-selected {
+  
+    &.is-start-date, &.is-end-date {
       .day-show {
         background: #FF8E22;
       }
-  }
-
-  // :not(.is-last-date)
-  &.is-start-date:not(.is-end-date) {
-    .day-item::after {
-      position: absolute;
-      display: block;
-      content: '';
-      width: 50%;
-      height: 100%;
-      top: 0;
-      left: 50%;
-      background: #FFF2E6;
-      z-index: -1;
-      pointer-events: none;
     }
-  }
-
-  // :not(.is-first-date)
-  &.is-end-date:not(.is-start-date) {
-    .day-item::before {
-      position: absolute;
-      display: block;
-      content: '';
-      width: 50%;
-      height: 100%;
-      top: 0;
-      right: 50%;
-      background: #FFF2E6;
-      z-index: -1;
-      pointer-events: none;
+  
+    &.is-range-selected {
+        .day-show {
+          background: #FF8E22;
+        }
     }
-  }
-
-  &.is-high-light {
-    color: #FF8E22;
+  
+    // :not(.is-last-date)
+    &.is-start-date:not(.is-end-date) {
+      .day-item::after {
+        position: absolute;
+        display: block;
+        content: '';
+        width: 50%;
+        height: 100%;
+        top: 0;
+        left: 50%;
+        background: #FFF2E6;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  
+    // :not(.is-first-date)
+    &.is-end-date:not(.is-start-date) {
+      .day-item::before {
+        position: absolute;
+        display: block;
+        content: '';
+        width: 50%;
+        height: 100%;
+        top: 0;
+        right: 50%;
+        background: #FFF2E6;
+        z-index: -1;
+        pointer-events: none;
+      }
+    }
+  
+    &.is-high-light {
+      color: #FF8E22;
+    }
   }
 }
