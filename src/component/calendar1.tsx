@@ -664,6 +664,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
               onMouseDown={touchStartHandle}
               onMouseMove={touchMoveHandle}
               onMouseUp={touchEndHandle}
+              onMouseLeave={touchEndHandle}
               >
               <div className={'month-container-inner ' + `${animate ? 'animate' : ''}`} style={{
                 transform: `translateX(${transform}px)`
