@@ -660,10 +660,6 @@ const Calendar: React.FC<Props> = observer(function (props) {
                             {
                               weekItems.map(((dayItem, dayItemIndex)=> {
                                 return <div
-                                        onClick={(e)=>{
-                                          e.stopPropagation()
-                                          selectDayHandle(e, dayItem)
-                                        }}
                                         // data-ymd={dayItem.day.format('YYYY-MM-DD')}
                                         className={classNames(`day-item-container ${dayItem.type}`, {
                                           'is-range': range,
@@ -677,7 +673,10 @@ const Calendar: React.FC<Props> = observer(function (props) {
                                           'is-high-light': isHighLightDate(dayItem)
                                         })}
                                         key={`${dayItem.day.format('YYYY-MM-DD')}`}>
-                                          <div className={'day-item'}>
+                                          <div className={'day-item'} onClick={(e)=>{
+                                          e.stopPropagation()
+                                          selectDayHandle(e, dayItem)
+                                        }}>
                                             <div className='day-show'>{dayItem.day.date()}</div>
                                             <div className='day-label'>{(labelRender || _labelRender)(dayItem)}</div>
                                           </div>

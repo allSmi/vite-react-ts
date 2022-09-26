@@ -94,13 +94,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         console.log('%conMonthChange', 'padding: 1px; border-radius: 3px; color: #fff; background: red', month)
       }}
       onSelectRangeDone={(range: SelectRangeDoneType)=>{
-        console.log(range);
+        console.log('%conSelectRangeDone', 'padding: 1px; border-radius: 3px; color: #fff; background: red', range)
         ranges = range.map(item => {
           return item.show
         })
       }}
       onSelectDone={(selectDates: SelectDoneType)=>{
-        console.log(selectDates);
+        console.log('%conSelectDone', 'padding: 1px; border-radius: 3px; color: #fff; background: red', selectDates)
       }}
       defaultValue={['2022-08-29','2022-08-30','2022-08-31']} // , '2022-09-18', '2022-10-19'
       defaultRangeValue={ranges}
