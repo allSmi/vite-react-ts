@@ -43,6 +43,18 @@ interface MonthTemp {
 
 type ChangeMonthType = 'NEXT'|'LAST'|null
 
+const isBrowser = !!(
+  typeof window !== 'undefined' &&
+  window.document &&
+  window.document.createElement
+);
+
+const touchSupported =
+  isBrowser &&
+  // @ts-ignore
+  ('ontouchstart' in window || (window.DocumentTouch && document instanceof DocumentTouch));
+
+
 const Calendar: React.FC<Props> = observer(function (props) {
 
   const { 
@@ -65,7 +77,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   const [today, setToday] = useState(dayjs().format('YYYY-MM-DD')); // 记录今天的日期
 
-  const [flag, setFlag] = useState(false); // 是否开启新一轮触摸时间的标记
+  const flag = useRef(false) // 是否开启新一轮触摸事件的标记
 
   let [update,forceUpdate] = useState(0) // 强制重新渲染组件
 
@@ -365,7 +377,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
   },[])
 
   // 设置当前展示的月份，currentDayjs变化后会触发重新计算monthList
-  let toggleMonthHandle = useCallback((dayjs: Dayjs, type: 'last' | 'next', rangeType: 'month' | 'year' = 'month') => {
+  let toggleMonthHandle = useCallback((dayjs: Dayjs, type: 'last' | 'next', rangeType: 'month' | 'year' = 'month', e?: React.MouseEvent) => {
+
     // 先缓存月的数据
     monthTemp.current[dayjs.subtract(1, 'month').format('YYYY-MM')] = monthList[0]
     monthTemp.current[dayjs.format('YYYY-MM')] = monthList[1]
@@ -507,12 +520,26 @@ const Calendar: React.FC<Props> = observer(function (props) {
   },[update, toggleMonthHandle, currentMonth])
 
   // touchStart回调
-  let touchStartHandle = useCallback((e: React.TouchEvent) => {
+  let touchStartHandle = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    
     if(animate) return
 
-    setFlag(true)
+    flag.current = true
 
-    let touch = e.touches[0]
+    let touch = {
+      clientX: 0,
+      clientY: 0
+    }
+
+    if (touchSupported && e.type === "touchstart") {
+      touch = (e as React.TouchEvent).touches[0]
+      // console.log('%ctouch', 'padding: 1px; border-radius: 3px; color: #fff; background: red', touch)
+    } else {
+      touch = {
+        clientX: (e as React.MouseEvent).clientX,
+        clientY: (e as React.MouseEvent).clientY,
+      }
+    }
 
     setAnimate(false)
 
@@ -529,13 +556,25 @@ const Calendar: React.FC<Props> = observer(function (props) {
   },[animate])
 
   // touchMove回调
-  let touchMoveHandle = useCallback(throttle((e: React.TouchEvent) => {
+  let touchMoveHandle = useCallback(throttle((e: React.TouchEvent | React.MouseEvent) => {
 
     if (animate) return
 
-    if (!flag) return
+    if (!flag.current) return
 
-    let touch = e.touches[0]
+    let touch = {
+      clientX: 0,
+      clientY: 0
+    }
+
+    if (touchSupported) {
+      touch = (e as React.TouchEvent).touches[0]
+    } else {
+      touch = {
+        clientX: (e as React.MouseEvent).clientX,
+        clientY: (e as React.MouseEvent).clientY,
+      }
+    }
 
     setEndPos({
       x: touch.clientX,
@@ -547,10 +586,10 @@ const Calendar: React.FC<Props> = observer(function (props) {
   }),[width, startPos, animate])
 
   // touchEnd回调
-  let touchEndHandle = useCallback((e: React.TouchEvent) => {
+  let touchEndHandle = useCallback((e: React.TouchEvent | React.MouseEvent) => {
     if(animate) return
 
-    if (!flag) return
+    if (!flag.current) return
 
     let direction = null
 
@@ -564,6 +603,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
     if(startPos.x !== endPos.x) {
       setAnimate(true)
+    } else {
+      flag.current = false
     }
     if (Math.abs(startPos.x - endPos.x) >= width / 6) {
       // 如果移动距离大于 width/6 ，则切换月份
@@ -590,7 +631,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
       y: 0
     })
 
-    setFlag(false)
+    
 
   },[width, endPos, startPos, animate])
 
@@ -606,6 +647,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
         }
         setTransform(-width)
         setAnimate(false)
+
+        flag.current = false
     // }, 50);
 
   }, [width, currentMonth, toggleMonthHandle]) // [width, currentMonth, monthList]
@@ -618,6 +661,9 @@ const Calendar: React.FC<Props> = observer(function (props) {
               onTouchMove={touchMoveHandle}
               onTouchEnd={touchEndHandle}
               onTransitionEnd={transionEndHandle}
+              onMouseDown={touchStartHandle}
+              onMouseMove={touchMoveHandle}
+              onMouseUp={touchEndHandle}
               >
               <div className={'month-container-inner ' + `${animate ? 'animate' : ''}`} style={{
                 transform: `translateX(${transform}px)`
@@ -629,19 +675,19 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
                     return <div className='month-item' key={key}>
                       <div className='month-toggle' style={{'textAlign': 'center'}}>
-                        <div className='month-toggle-last-year' onClick={()=>{
+                        <div className='month-toggle-last-year' onClick={(e)=>{
                           toggleMonthHandle(currentMonth, 'last', 'year')
                         }}>&lt;&lt;</div>
-                        <div className='month-toggle-last-month' onClick={()=>{
+                        <div className='month-toggle-last-month' onClick={(e)=>{
                           toggleMonthHandle(currentMonth, 'last', 'month')
                         }}>
                           &lt;
                         </div>
                         <div className='current-month'>{monthItem[1][0].day.format('YYYY-MM')}</div>
-                        <div className='month-toggle-next-month' onClick={()=>{
+                        <div className='month-toggle-next-month' onClick={(e)=>{
                           toggleMonthHandle(currentMonth, 'next', 'month')
                         }}>&gt;</div>
-                        <div className='month-toggle-next-year' onClick={()=>{
+                        <div className='month-toggle-next-year' onClick={(e)=>{
                           toggleMonthHandle(currentMonth, 'next', 'year')
                         }}>&gt;&gt;</div>
                       </div>
@@ -660,27 +706,30 @@ const Calendar: React.FC<Props> = observer(function (props) {
                             {
                               weekItems.map(((dayItem, dayItemIndex)=> {
                                 return <div
-                                        // data-ymd={dayItem.day.format('YYYY-MM-DD')}
-                                        className={classNames(`day-item-container ${dayItem.type}`, {
-                                          'is-range': range,
-                                          'is-today': dayItem.isToday,
-                                          'is-selected': isSelected(dayItem),
-                                          'is-start-date': isStartDate(dayItem),
-                                          'is-end-date': isEndDate(dayItem),
-                                          'is-range-selected': isRangeSelected(dayItem),
-                                          'is-first-date': isFirstDate(dayItem),
-                                          'is-last-date': isLastDate(dayItem),
-                                          'is-high-light': isHighLightDate(dayItem)
-                                        })}
-                                        key={`${dayItem.day.format('YYYY-MM-DD')}`}>
-                                          <div className={'day-item'} onClick={(e)=>{
-                                          e.stopPropagation()
-                                          selectDayHandle(e, dayItem)
-                                        }}>
-                                            <div className='day-show'>{dayItem.day.date()}</div>
-                                            <div className='day-label'>{(labelRender || _labelRender)(dayItem)}</div>
-                                          </div>
-                                          <div className='day-extra-label'>{extraLabelRender?.(dayItem)}</div>
+                                          // data-ymd={dayItem.day.format('YYYY-MM-DD')}
+                                          className={classNames(`day-item-container ${dayItem.type}`, {
+                                            'is-range': range,
+                                            'is-today': dayItem.isToday,
+                                            'is-selected': isSelected(dayItem),
+                                            'is-start-date': isStartDate(dayItem),
+                                            'is-end-date': isEndDate(dayItem),
+                                            'is-range-selected': isRangeSelected(dayItem),
+                                            'is-first-date': isFirstDate(dayItem),
+                                            'is-last-date': isLastDate(dayItem),
+                                            'is-high-light': isHighLightDate(dayItem)
+                                          })}
+                                          key={`${dayItem.day.format('YYYY-MM-DD')}`}>
+                                            <div className={'day-item'} onClick={(e)=>{
+                                              e.stopPropagation()
+
+                                              if (flag.current) return
+
+                                              selectDayHandle(e, dayItem)
+                                            }}>
+                                              <div className='day-show'>{dayItem.day.date()}</div>
+                                              <div className='day-label'>{(labelRender || _labelRender)(dayItem)}</div>
+                                            </div>
+                                            <div className='day-extra-label'>{extraLabelRender?.(dayItem)}</div>
                                         </div>
                               }))
                             }
