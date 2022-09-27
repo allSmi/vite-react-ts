@@ -29,7 +29,7 @@ export type SelectDoneType = Array<DayInfo>
 
 export interface DayInfo {
   day: Dayjs
-  show: string
+  show: string // 2022-08-08
   info?: any[]
   disabled?: boolean
   type?: 'last' | 'current' | 'next',
