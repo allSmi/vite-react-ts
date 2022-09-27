@@ -105,6 +105,25 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       defaultValue={['2022-08-29','2022-08-30','2022-08-31']} // , '2022-09-18', '2022-10-19'
       defaultRangeValue={ranges}
       highLightDates={['2022-08-19','2022-08-10','2022-08-11']}
+      // titleRender = {(month: any, props: any) => {
+      //   let {
+      //     nextMonthFn,
+      //     lastMonthFn
+      //   } = props
+
+      //   return (
+      //     <div style={{
+      //       textAlign: 'center',
+      //       padding: '20px',
+      //       display: 'flex',
+      //       justifyContent: 'space-between',
+      //     }}>
+      //       <div onClick={lastMonthFn}>last</div>
+      //       <div>{month}</div>
+      //       <div onClick={nextMonthFn}>next</div>
+      //     </div>
+      //   )
+      // }}
       // beginText="开始日"
       // endText="结束日"
     ></Calendar>

@@ -2,26 +2,21 @@
   padding: 10px;
   user-select: none;
   .month-toggle {
+    text-align: center;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    padding: 0 20px;
     .current-month {
       width: 100px;
+      font-size: 16px;
     }
-    .month-toggle-last-year {
-      width: 40px;
-      height: 40px;
-    }
-    .month-toggle-last-month {
-      width: 40px;
-      height: 40px;
-    }
-    .month-toggle-next-month {
-      width: 40px;
-      height: 40px;
-    }
+    .month-toggle-last-year,
+    .month-toggle-last-month,
+    .month-toggle-next-month,
     .month-toggle-next-year {
-      width: 40px;
-      height: 40px;
+      font-size: 20px;
     }
   }
   .month-container {

@@ -20,6 +20,7 @@ interface Props {
   endText?: string // 结束日期的文案
   highLightDates?: Array<any> // 需要高亮的日期
   onMonthChange?: Function // 月份切换时的回调
+  titleRender?: Function // 自定义渲染标题
 }
 
 export type SelectRangeDoneType = [DayInfo, DayInfo]
@@ -70,7 +71,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
     beginText, 
     endText,
     highLightDates,
-    onMonthChange
+    onMonthChange,
+    titleRender
   } = props
 
   const monthTemp = useRef<MonthTemp>({}) // 月份缓存，切换月份时先将当前月份缓存，下次直接从缓存中获取
@@ -382,10 +384,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
     }
   },[])
 
-  let toggleMonthFn = useCallback((e: React.MouseEvent , type: 'last' | 'next', rangeType: 'month' | 'year' = 'month') => {
-
-    e.stopPropagation()
-    e.preventDefault()
+  let toggleMonthFn = useCallback((type: 'last' | 'next', rangeType: 'month' | 'year' = 'month') => {
 
     setAnimate(true)
 
@@ -421,8 +420,8 @@ const Calendar: React.FC<Props> = observer(function (props) {
     if (dayInfo.type === 'last' || dayInfo.type === 'next') {
 
       // toggleMonthHandle(currentMonth, dayInfo.type, 'month')
-      toggleMonthFn(e, dayInfo.type, 'month')
-      
+      toggleMonthFn(dayInfo.type, 'month')
+
       let weekList = monthTemp.current[dayInfo.day.format('YYYY-MM')]
 
       let isFind = false // 是否找到指定日期
@@ -673,27 +672,46 @@ const Calendar: React.FC<Props> = observer(function (props) {
 
   }, [width, currentMonth, toggleMonthHandle]) // [width, currentMonth, monthList]
 
+  let _titleRender = useCallback(() => {
+    let showMonth = currentMonth.format('YYYY-MM')
+    if (titleRender) {
+      return titleRender(showMonth, {
+        onClick: () => {
+          console.log('%c1111', 'padding: 1px; border-radius: 3px; color: #fff; background: red', )
+        },
+        nextMonthFn: () => {
+          toggleMonthFn('next', 'month')
+        },
+        lastMonthFn: () => {
+          toggleMonthFn('last', 'month')
+        }
+      })
+    }else {
+      return (
+        <div className='month-toggle'>
+          <div className='month-toggle-last-year' onClick={(e)=>{
+            toggleMonthHandle(currentMonth, 'last', 'year')
+          }}>«</div>
+          <div className='month-toggle-last-month' onClick={(e)=>{
+            toggleMonthFn('last', 'month')
+            // toggleMonthHandle(currentMonth, 'last', 'month')
+          }}>‹</div>
+          <div className='current-month'>{showMonth}</div>
+          <div className='month-toggle-next-month' onClick={(e)=>{
+            toggleMonthFn('next', 'month')
+            // toggleMonthHandle(currentMonth, 'next', 'month')
+          }}>›</div>
+          <div className='month-toggle-next-year' onClick={(e)=>{
+            toggleMonthHandle(currentMonth, 'next', 'year')
+          }}>»</div>
+        </div>
+      )
+    }
+  }, [currentMonth, toggleMonthHandle])
+
   return (
     <div className='calendar'>
-      <div className='month-toggle' style={{'textAlign': 'center'}}>
-        <div className='month-toggle-last-year' onClick={(e)=>{
-          toggleMonthHandle(currentMonth, 'last', 'year')
-        }}>&lt;&lt;</div>
-        <div className='month-toggle-last-month' onClick={(e)=>{
-          toggleMonthFn(e, 'last', 'month')
-          // toggleMonthHandle(currentMonth, 'last', 'month')
-        }}>
-          &lt;
-        </div>
-        <div className='current-month'>{currentMonth.format('YYYY-MM')}</div>
-        <div className='month-toggle-next-month' onClick={(e)=>{
-          toggleMonthFn(e, 'next', 'month')
-          // toggleMonthHandle(currentMonth, 'next', 'month')
-        }}>&gt;</div>
-        <div className='month-toggle-next-year' onClick={(e)=>{
-          toggleMonthHandle(currentMonth, 'next', 'year')
-        }}>&gt;&gt;</div>
-      </div>
+      { _titleRender() }
       <div
         className='month-container'
         ref={monthContainerDom}
