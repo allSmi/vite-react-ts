@@ -351,24 +351,29 @@ const Calendar: React.FC<Props> = observer(function (props) {
   }, [])
 
   let _labelRender = useCallback((dayInfo: DayInfo) => {
-    if (dayInfo.type === 'current') {
-      if (startDate.current?.show === endDate.current?.show) {
-        if (dayInfo.show === startDate.current?.show) {
-          return <div className='label'>{ beginText ?? '开始'}/{ endText ?? '结束'}</div>
-        }
-      } else {
-        if (dayInfo.show === startDate.current?.show) {
-          return <div className='label'>{ beginText ?? '开始'}</div>
-        }
-        if (dayInfo.show === endDate.current?.show) {
-          return <div className='label'>{ endText ?? '结束'}</div>
-        }
-      }
 
-      if (dayInfo.isToday) return <div className='label'>今</div>
+    if (labelRender) {
+      return <div className='label'>{ labelRender(dayInfo) }</div>
+    } else {
+      if (dayInfo.type === 'current') {
+        if (startDate.current?.show === endDate.current?.show) {
+          if (dayInfo.show === startDate.current?.show) {
+            return <div className='label'>{ beginText ?? '开始'}/{ endText ?? '结束'}</div>
+          }
+        } else {
+          if (dayInfo.show === startDate.current?.show) {
+            return <div className='label'>{ beginText ?? '开始'}</div>
+          }
+          if (dayInfo.show === endDate.current?.show) {
+            return <div className='label'>{ endText ?? '结束'}</div>
+          }
+        }
+  
+        if (dayInfo.isToday) return <div className='label'>今</div>
+      }
+      
+      return null
     }
-    
-    return null
   }, [])
 
   // 计算容器宽度
@@ -786,7 +791,7 @@ const Calendar: React.FC<Props> = observer(function (props) {
                                         selectDayHandle(e, dayItem)
                                       }}>
                                         <div className='day-show'>{dayItem.day.date()}</div>
-                                        <div className='day-label'>{(labelRender || _labelRender)(dayItem)}</div>
+                                        <div className='day-label'>{_labelRender(dayItem)}</div>
                                       </div>
                                       <div className='day-extra-label'>{extraLabelRender?.(dayItem)}</div>
                                   </div>

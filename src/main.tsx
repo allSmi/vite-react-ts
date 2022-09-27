@@ -77,7 +77,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       // muti
       // canCancle
       // labelRender={(dayInfo: DayInfo) => { 
-      //   return <div>1</div>
+      //   return 111
       // }}
       extraLabelRender={(dayInfo: DayInfo) => {
         if (dayInfo.type === 'current') {
@@ -85,7 +85,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             width: '5px',
             height: '5px',
             borderRadius: '50%',
-            background: dayInfo.show === '2022-08-10' ? '#FF8E22' : 'transparent',
+            background: ['2022-08-10', '2022-08-18', '2022-09-10', '2022-09-27'].includes(dayInfo.show) ? '#FF8E22' : 'transparent',
             marginTop: '4px'
           }}></div>
         }
